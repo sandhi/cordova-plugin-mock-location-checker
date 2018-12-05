@@ -22,7 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-public class MockLocationChecker extends CordovaPlugin{
+public class MockLocationChecker extends CordovaPlugin {
 
     private int MY_PERMISSIONS_REQUEST = 0;
 
@@ -43,45 +43,46 @@ public class MockLocationChecker extends CordovaPlugin{
 
         if (action.equals("check")) {
             if (android.os.Build.VERSION.SDK_INT < 18) {
-                if (Secure.getString(this.cordova.getActivity().getContentResolver(), Secure.ALLOW_MOCK_LOCATION).equals("0")){
-                    objGPS.put("info","mock-false");
-                  statusMock = "mock-false";
-                }else{
-                    objGPS.put("info","mock-true");
-                  statusMock = "mock-true";
+                if (Secure.getString(this.cordova.getActivity().getContentResolver(), Secure.ALLOW_MOCK_LOCATION)
+                        .equals("0")) {
+                    objGPS.put("info", "mock-false");
+                    statusMock = "mock-false";
+                } else {
+                    objGPS.put("info", "mock-true");
+                    statusMock = "mock-true";
                 }
 
             } else {
 
                 // Acquire a reference to the system Location Manager
-                LocationManager locationManager = (LocationManager) this.cordova.getActivity().getSystemService(Context.LOCATION_SERVICE);
+                LocationManager locationManager = (LocationManager) this.cordova.getActivity()
+                        .getSystemService(Context.LOCATION_SERVICE);
 
                 // getting GPS status
-                isGPSEnabled = locationManager
-                        .isProviderEnabled(LocationManager.GPS_PROVIDER);
+                isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
                 // getting network status
-                isNetworkEnabled = locationManager
-                        .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-
-                if(!isGPSEnabled && !isNetworkEnabled) {
+                if (!isGPSEnabled && !isNetworkEnabled) {
                     // no network provider is enabled
-                }else{
-                    if(isGPSEnabled){
+                } else {
+
+                    // locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+
+                    if (isGPSEnabled) {
                         LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
                     }
-                    if(isNetworkEnabled){
+                    if (isNetworkEnabled) {
                         LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER;
                     }
                 }
 
-                if(listenerON != true) {
+                if (listenerON != true) {
 
                     // Define a listener that responds to location updates
                     locationListener = new LocationListener() {
                         public void onLocationChanged(Location location) {
-
 
                             // Called when a new location is found by the network location provider.
 
@@ -89,38 +90,37 @@ public class MockLocationChecker extends CordovaPlugin{
 
                             String datetime = formatDate(dateGPS);
 
-                             Log.e("DATA-GPS", "Lat:" + location.getLatitude() + " - Long:" + location.getLongitude() + " - Data e hora:" + datetime);
+                            Log.e("DATA-GPS", "Lat:" + location.getLatitude() + " - Long:" + location.getLongitude()
+                                    + " - Data e hora:" + datetime);
 
-                             try{
+                            try {
 
-                                 objGPS.put("lat",location.getLatitude());
-                                 objGPS.put("long",location.getLongitude());
-                                 objGPS.put("time",location.getTime());
-                                 objGPS.put("formatTime",datetime);
-                                 objGPS.put("extra",null);
+                                objGPS.put("lat", location.getLatitude());
+                                objGPS.put("long", location.getLongitude());
+                                objGPS.put("time", location.getTime());
+                                objGPS.put("formatTime", datetime);
+                                objGPS.put("extra", null);
 
-                                 if (location.isFromMockProvider() == true) {
-                                     objGPS.put("info","mock-true");
-                                     statusMock = "mock-true";
-                                 } else {
-                                     objGPS.put("info","mock-false");
-                                     statusMock = "mock-false";
-                                 }
+                                if (location.isFromMockProvider() == true) {
+                                    objGPS.put("info", "mock-true");
+                                    statusMock = "mock-true";
+                                } else {
+                                    objGPS.put("info", "mock-false");
+                                    statusMock = "mock-false";
+                                }
 
-                                 if(arrayGPS.length() == 0){
-                                     arrayGPS.put(objGPS);
-                                 }
+                                if (arrayGPS.length() == 0) {
+                                    arrayGPS.put(objGPS);
+                                }
 
-                                 Log.e("GPS-LOCATION-ARRAY", arrayGPS.toString());
+                                Log.e("GPS-LOCATION-ARRAY", arrayGPS.toString());
 
-                                 callbackContext.success(arrayGPS);
+                                callbackContext.success(arrayGPS);
 
-
-                             } catch (JSONException e) {
+                            } catch (JSONException e) {
                                 e.printStackTrace();
                                 callbackContext.error(e.toString());
-                             }
-
+                            }
 
                         }
 
@@ -139,8 +139,7 @@ public class MockLocationChecker extends CordovaPlugin{
 
                     // Here, thisActivity is the current activity
                     if (ContextCompat.checkSelfPermission(this.cordova.getActivity(),
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
+                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                         // Should we show an explanation?
                         if (ActivityCompat.shouldShowRequestPermissionRationale(this.cordova.getActivity(),
@@ -155,8 +154,7 @@ public class MockLocationChecker extends CordovaPlugin{
                             // No explanation needed, we can request the permission.
 
                             ActivityCompat.requestPermissions(this.cordova.getActivity(),
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    MY_PERMISSIONS_REQUEST);
+                                    new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, MY_PERMISSIONS_REQUEST);
 
                             // MY_PERMISSIONS_REQUEST is an
                             // app-defined int constant. The callback method gets the
@@ -169,19 +167,19 @@ public class MockLocationChecker extends CordovaPlugin{
                     // Register the listener with the Location Manager to receive location updates
                     locationManager.requestLocationUpdates(LOCATION_PROVIDER, 15000, 0, locationListener);
 
-                }else{
+                } else {
                     callbackContext.success(arrayGPS);
                 }
 
             }
-          return true;
-        }else {
-          return false;
+            return true;
+        } else {
+            return false;
         }
 
     }
 
-    private String formatDate(Date date){
+    private String formatDate(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String format = formatter.format(date);
 
